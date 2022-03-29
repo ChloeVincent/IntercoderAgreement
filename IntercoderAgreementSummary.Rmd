@@ -1,0 +1,161 @@
+---
+title: "Intercoder agreement 1"
+author: "Chloé Vincent"
+date: "19-Jan-2022"
+output: html_document
+---
+
+<!-- The option "cache=TRUE" in the code chunks getFunctionHelper and getDataframes
+avoid calling the "choose.files" function which opens a window each time the script runs -->
+```{r getFunctionHelper, include=FALSE}
+RFilter <- matrix(c("R files (*.R)", "*.R"), nrow = 1)
+  functionHelperPath <- choose.files(default = "", 
+                                     caption = "Select the function helper",
+                                     filters = RFilter,
+                                     index = 1)
+```
+
+```{r sourceFunctionHelper, include=FALSE}
+
+source(functionHelperPath)
+```
+
+```{r getDataframes, include=FALSE}
+# read the CSV file
+#   Export the Maxqda project file (Reports > Export > “Projects components as Excel File”), 
+#   open this Excel file to the “Coded segments” sheet and “Save as CSV” 
+#   (you will get an alert that it will save only the active sheet).
+df <- getMaxqdaCSVExport()
+df.calc <- getResultTable(df, codersPairs, codersPairs.red, FALSE)
+
+df.summary <- getSummary(df.calc, codersNames, codersPairs, codersPairs.red)
+
+#df.sum.reduced <- getResultTable(df, codersPairs, TRUE) %>% 
+ #                   getSummary(codersNames, codersPairs)
+
+```
+```{r formatTables, include=FALSE}
+library("reactable")
+#library(RColorBrewer)
+# the viridis package is only needed for the pretty colors, you can use a list of colors
+# to replace the argument of "make_color_pal" (e.g. c("#ffffff", "#f2fbd2",...))
+library("viridis")
+make_color_pal <- function(colors, bias = 1) {
+  get_color <- colorRamp(colors, bias = bias)
+  function(x) rgb(get_color(x), alpha= 150, maxColorValue = 255)
+}
+
+agreement_pct_color <- make_color_pal(magma(10))
+
+#brewer.pal(11,'RdYlGn')
+#brewer.pal(11,'RdYlBu')
+#brewer.pal(11,'Spectral')
+#c("#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab")
+
+format_pct <- function(value) {
+  if (is.na(value)){
+        ""
+  }else{
+    formatC(paste0(round(value * 100, digits=2), "%"), width = 4)
+  }
+}
+agreement_column <- function(class = NULL, ...) {
+  colDef(
+    cell = format_pct,
+    class = paste("cell number", class),
+    style = function(value) {
+      # Lighter color for <1% (kept for the example)
+      if (is.na(value)){
+        list(color ="#fff")
+      }else if (value < 0.01) {
+        list(color = "#aaa")
+      } else {
+        list(color = "#111", background = agreement_pct_color(value))
+      }
+    },
+    ...
+  )
+}
+
+code_column <- function(){
+    colDef(
+    style = function(value) {
+      if (is.na(value)){
+        list(color ="#000")
+      }else if (substring(value,1,2) =="I0") {
+        list(color = "#0cbfcc", fontWeight = "bold")
+      } else if (substring(value,1,2) == "I1") {
+        list(color = "#961e96", fontWeight = "bold")
+      }
+    },
+  )
+}
+
+comment_column <- function(){
+    colDef(
+      name = "View comments",
+      cell = function() htmltools::tags$button("view")
+      )
+}
+
+```
+
+
+
+## Summary
+
+This intercoder agreement test is based on comments taken from the BBC Facebook post [Bestselling Irish author Sally Rooney in Israel boycott row](https://www.facebook.com/bbcnews/posts/10159066458072217).
+
+```{r summary, echo=FALSE}
+reactable(df.summary%>% rename(Coders = rowName),
+          columns = list(
+            name2 = agreement_column(),
+            name3 = agreement_column()
+          ))
+```
+
+#### AS vs. not AS
+
+Agreement results when the difference between I0 vs. I0c and I1 vs. I1ASC are ignored:
+```{r reduced, echo=FALSE}
+# reactable(df.sum.reduced%>% rename(Coders = rowName),
+#           columns = list(
+#             name2 = agreement_column(),
+#             name3 = agreement_column(),
+#           ))
+```
+
+## Result table
+
+Note that the last line (647) was not filtered out, even though it's the 51st comment coded, because more than half of the coders did code it and it didn't change the final results much.
+
+```{r results, echo=FALSE}
+reactable(df.calc %>% 
+            select(End, all_of(codersNames), commentAgreement, commentAgreement.red, Segment)%>%
+            rename("Line #"= End),
+          pagination = FALSE,
+          fullWidth = FALSE,
+          columns = list(
+          name1 = code_column(),
+          name2 = code_column(),
+          name3 = code_column(),
+          commentAgreement = agreement_column(name = "Mean Agreement*"),
+          commentAgreement.red = agreement_column(name = "AS vs. not AS"),
+          Segment =comment_column()
+          ),
+
+          onClick = JS("function(rowInfo, colInfo) {
+    // Only handle click events on the 'Segment' column
+    if (colInfo.id !== 'Segment') {
+      return
+    }
+
+    // Display an alert dialog with details for the row
+    window.alert(rowInfo.row['Segment'] )
+  }")          
+          
+)
+
+```
+\* The percentage is the mean of the agreements of all the coders' pairs. <br/>
+E.g. for the first line: 16 pairs agree out of 36 possibilities, i.e. 16/36= ~44% of mean agreement for the first comment.

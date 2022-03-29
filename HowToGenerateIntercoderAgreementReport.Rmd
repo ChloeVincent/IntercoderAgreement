@@ -1,0 +1,27 @@
+---
+title: "How to generate the intercoder agreement test report"
+author: "Chloé Vincent"
+date: "24-JAN-2022"
+output: word_document
+knit: (function(input, ...) {
+    rmarkdown::render(input,
+                      output_file = 'How to generate the intercoder agreement test report.docx')
+  })
+---
+
+
+The report is generated from a ‘markdown’ script: IntercoderAgreementSummary.Rmd^[The present file was generated knitting the following Rmarkdown script: "HowToGenerateIntercoderAgreementReport.Rmd"].
+
+To create the html report, you need to “knit” the document: open the Rmd file in RStudio and either click “Knit” above the document, or in the “Menu > File > Knit Document”, or press Ctrl+Shift+K.
+
+This script uses functions defined in the R script: FunctionHelperDA.R. You don’t need to do anything with it, just have it in your working folder.
+
+Once the project files of all coders are merged, export the merged Maxqda project file (Reports > Export > “Projects components as Excel File”), open this Excel file to the “Coded segments” sheet and “Save as CSV” (you will get an alert that it will save only the active sheet). You need to save it in a folder named “data” in your working folder.
+
+**For the script to work**, the only lines that need to be changed are at the start of the Rmd document. The local working folder and the name of the csv export file need to be changed for their real value (lines 10 and 11 – or close in case the file has changed). Make sure to use ‘/’ and not ‘\\’ for the working folder path, and make sure to keep a last ‘/’ at the end of the path.
+
+You will also need to install some R packages. In my case, RStudio offered the option directly (in a yellow strip at the top of the document) because it realized I didn’t have them. Otherwise you can use the command: install.packages(“package name”), with the packages you want instead of package names (there should be “tidyverse”, “viridis” and “reactable”). Or you can search in the tab “Packages”, on the bottom right corner of the RStudio window and tick the needed packages.
+
+Note that the script will only work if all coders from the team provided a Maxqda file, with the same names than for the first intercoder test. I shared the first intercoder test csv file in Tresorit for testing.
+
+

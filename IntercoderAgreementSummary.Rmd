@@ -1,7 +1,7 @@
 ---
-title: "Intercoder agreement 1"
+title: "Intercoder agreement 2"
 author: "Chloé Vincent"
-date: "19-Jan-2022"
+date: "24-MAR-2022"
 output: html_document
 ---
 
@@ -11,6 +11,10 @@ avoid calling the "choose.files" function which opens a window each time the scr
 RFilter <- matrix(c("R files (*.R)", "*.R"), nrow = 1)
   functionHelperPath <- choose.files(default = "", 
                                      caption = "Select the function helper",
+                                     filters = RFilter,
+                                     index = 1)
+  censoredInfoPath <- choose.files(default = "",
+                                     caption = "Select the Censored Info file",
                                      filters = RFilter,
                                      index = 1)
 ```
@@ -26,12 +30,13 @@ source(functionHelperPath)
 #   open this Excel file to the “Coded segments” sheet and “Save as CSV” 
 #   (you will get an alert that it will save only the active sheet).
 df <- getMaxqdaCSVExport()
-df.calc <- getResultTable(df, codersPairs, codersPairs.red, FALSE)
 
-df.summary <- getSummary(df.calc, codersNames, codersPairs, codersPairs.red)
+df.calc <- getResultTable(df, FALSE)
 
-#df.sum.reduced <- getResultTable(df, codersPairs, TRUE) %>% 
- #                   getSummary(codersNames, codersPairs)
+df.summary <- getSummary(df.calc)
+
+df.sum.reduced <- getResultTable(df, TRUE) %>%
+                    getSummary()
 
 ```
 ```{r formatTables, include=FALSE}
@@ -104,30 +109,26 @@ comment_column <- function(){
 
 ## Summary
 
-This intercoder agreement test is based on comments taken from the BBC Facebook post [Bestselling Irish author Sally Rooney in Israel boycott row](https://www.facebook.com/bbcnews/posts/10159066458072217).
+This intercoder agreement test is based on comments taken from the Independant Facebook post [Amnesty accuses Israel of being an ‘apartheid’ state](https://www.facebook.com/TheIndependentOnline/posts/10159970276036636).
 
 ```{r summary, echo=FALSE}
-reactable(df.summary%>% rename(Coders = rowName),
-          columns = list(
-            name2 = agreement_column(),
-            name3 = agreement_column()
-          ))
+reactable(df.summary,
+          columns = eval(parse(text=getAgreementListColumnToEval())))
 ```
 
 #### AS vs. not AS
 
 Agreement results when the difference between I0 vs. I0c and I1 vs. I1ASC are ignored:
 ```{r reduced, echo=FALSE}
-# reactable(df.sum.reduced%>% rename(Coders = rowName),
-#           columns = list(
-#             name2 = agreement_column(),
-#             name3 = agreement_column(),
-#           ))
+reactable(df.sum.reduced,
+          columns = eval(parse(text=getAgreementListColumnToEval())))
 ```
 
 ## Result table
 
-Note that the last line (647) was not filtered out, even though it's the 51st comment coded, because more than half of the coders did code it and it didn't change the final results much.
+<!-- Note that the last line (647) was not filtered out, even though it's the 51st comment coded, because more than half of the coders did code it and it didn't change the final results much. -->
+Note that when double coded differently I only counted half the 'point'.<br/>
+E.g. (I1) and (I1, I1a) is 0.5 ; (I1ASC, I1a) and (I1a, I1ASC) is 1
 
 ```{r results, echo=FALSE}
 reactable(df.calc %>% 
@@ -135,14 +136,7 @@ reactable(df.calc %>%
             rename("Line #"= End),
           pagination = FALSE,
           fullWidth = FALSE,
-          columns = list(
-          name1 = code_column(),
-          name2 = code_column(),
-          name3 = code_column(),
-          commentAgreement = agreement_column(name = "Mean Agreement*"),
-          commentAgreement.red = agreement_column(name = "AS vs. not AS"),
-          Segment =comment_column()
-          ),
+          columns = eval(parse(text=getCodeListColumnToEval())),
 
           onClick = JS("function(rowInfo, colInfo) {
     // Only handle click events on the 'Segment' column
@@ -158,4 +152,4 @@ reactable(df.calc %>%
 
 ```
 \* The percentage is the mean of the agreements of all the coders' pairs. <br/>
-E.g. for the first line: 16 pairs agree out of 36 possibilities, i.e. 16/36= ~44% of mean agreement for the first comment.
+ E.g. for line 77: 15 pairs agree out of 28 possibilities, i.e. 15/28= 53.57% of mean agreement for the comment line 77.

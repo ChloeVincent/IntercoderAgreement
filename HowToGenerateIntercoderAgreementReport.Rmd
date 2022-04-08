@@ -1,7 +1,7 @@
 ---
 title: "How to generate the intercoder agreement test report"
 author: "Chloé Vincent"
-date: "24-JAN-2022"
+date: "08-APR-2022"
 output: word_document
 knit: (function(input, ...) {
     rmarkdown::render(input,
@@ -14,11 +14,17 @@ The report is generated from a ‘markdown’ script: IntercoderAgreementSummary
 
 To create the html report, you need to “knit” the document: open the Rmd file in RStudio and either click “Knit” above the document, or in the “Menu > File > Knit Document”, or press Ctrl+Shift+K.
 
-This script uses functions defined in the R script: FunctionHelperDA.R. You don’t need to do anything with it, just have it in your working folder.
+This script uses functions defined in the R script: FunctionHelperDA.R. You will need to do select it when prompted to on 'knit'. You will also need to select the file CensoredInfo.R which defines the team members and their pseudonyms (see at the beginning of FunctionHelperDA.R for the expected format).
 
-Once the project files of all coders are merged, export the merged Maxqda project file (Reports > Export > “Projects components as Excel File”), open this Excel file to the “Coded segments” sheet and “Save as CSV” (you will get an alert that it will save only the active sheet). You need to save it in a folder named “data” in your working folder.
+Once the project files of all coders are merged, export the merged Maxqda project file (Reports > Export > “Projects components as Excel File”), open this Excel file to the “Coded segments” sheet and “Save as CSV” (you will get an alert that it will save only the active sheet). You need to select it similarily as the previous files, when prompted to.
 
-**For the script to work**, the only lines that need to be changed are at the start of the Rmd document. The local working folder and the name of the csv export file need to be changed for their real value (lines 10 and 11 – or close in case the file has changed). Make sure to use ‘/’ and not ‘\\’ for the working folder path, and make sure to keep a last ‘/’ at the end of the path.
+**For an updated intercoder test**, the following lines needs to be modified in IntercoderAgreementSummary.Rmd:
+
+* lines 2 to 4 title, author and date
+* line 117 Description of the report
+* line 160 example of how the calculation is done - this line can also be simply removed
+
+The "censored info" file needs to be modified depending on who is taking part in the test and if the MAXQDA pseudonyms changed.
 
 You will also need to install some R packages. In my case, RStudio offered the option directly (in a yellow strip at the top of the document) because it realized I didn’t have them. Otherwise you can use the command: install.packages(“package name”), with the packages you want instead of package names (there should be “tidyverse”, “viridis” and “reactable”). Or you can search in the tab “Packages”, on the bottom right corner of the RStudio window and tick the needed packages.
 

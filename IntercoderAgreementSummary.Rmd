@@ -4,6 +4,14 @@ author: "Chloé Vincent"
 date: "24-MAR-2022"
 output: html_document
 ---
+<!-- In order to use this file for a new intercoder test, here is the list of lines to modify:
+- lines 2 to 4 title, author and date
+- line 117 Description of the report
+- line 160 example of how the calculation is done - this line can also be simply removed
+
+the "censored info file" needs to be modified depending on who is taking part in the test and if the MAXQDA pseudonyms changed
+-->
+
 
 <!-- The option "cache=TRUE" in the code chunks getFunctionHelper and getDataframes
 avoid calling the "choose.files" function which opens a window each time the script runs -->
